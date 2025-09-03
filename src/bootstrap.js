@@ -365,11 +365,14 @@ async function setupUsersPermissionsRoles() {
     });
 
     if (!existingAdminUser) {
+      const bcrypt = require('bcryptjs');
+      const hashedPassword = await bcrypt.hash('admin123', 10);
+      
       await strapi.query('plugin::users-permissions.user').create({
         data: {
           username: 'admin',
           email: 'admin@test.com',
-          password: await strapi.plugins['users-permissions'].services.user.hashPassword('admin123'),
+          password: hashedPassword,
           confirmed: true,
           role: adminRole.id
         }
@@ -383,11 +386,14 @@ async function setupUsersPermissionsRoles() {
     });
 
     if (!existingMemberUser) {
+      const bcrypt = require('bcryptjs');
+      const hashedPassword = await bcrypt.hash('member123', 10);
+      
       await strapi.query('plugin::users-permissions.user').create({
         data: {
           username: 'member',
           email: 'member@test.com',
-          password: await strapi.plugins['users-permissions'].services.user.hashPassword('member123'),
+          password: hashedPassword,
           confirmed: true,
           role: memberRole.id
         }
