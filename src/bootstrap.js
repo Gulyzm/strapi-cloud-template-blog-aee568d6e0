@@ -269,6 +269,138 @@ async function main() {
 }
 
 
+async function setupUsersPermissionsRoles() {
+  console.log('Setting up Users & Permissions roles...');
+  
+  try {
+    // Vérifier si les rôles existent déjà
+    const existingMember = await strapi.query('plugin::users-permissions.role').findOne({
+      where: { name: 'MEMBER' }
+    });
+    const existingAdmin = await strapi.query('plugin::users-permissions.role').findOne({
+      where: { name: 'ADMIN' }
+    });
+
+    // Créer le rôle MEMBER s'il n'existe pas
+    let memberRole = existingMember;
+    if (!memberRole) {
+      memberRole = await strapi.query('plugin::users-permissions.role').create({
+        data: {
+          name: 'MEMBER',
+          description: 'Membre avec accès en lecture aux datasets et datapoints',
+          type: 'member'
+        }
+      });
+      console.log('✅ Rôle MEMBER créé');
+    }
+
+    // Créer le rôle ADMIN s'il n'existe pas
+    let adminRole = existingAdmin;
+    if (!adminRole) {
+      adminRole = await strapi.query('plugin::users-permissions.role').create({
+        data: {
+          name: 'ADMIN',
+          description: 'Administrateur avec accès complet et import CSV',
+          type: 'admin'
+        }
+      });
+      console.log('✅ Rôle ADMIN créé');
+    }
+
+    // Définir les permissions pour MEMBER
+    const memberPermissions = [
+      { action: 'api::dataset.dataset.find', role: memberRole.id },
+      { action: 'api::dataset.dataset.findOne', role: memberRole.id },
+      { action: 'api::datapoint.datapoint.find', role: memberRole.id },
+      { action: 'api::datapoint.datapoint.findOne', role: memberRole.id }
+    ];
+
+    // Définir les permissions pour ADMIN (tout + import)
+    const adminPermissions = [
+      { action: 'api::dataset.dataset.find', role: adminRole.id },
+      { action: 'api::dataset.dataset.findOne', role: adminRole.id },
+      { action: 'api::dataset.dataset.create', role: adminRole.id },
+      { action: 'api::dataset.dataset.update', role: adminRole.id },
+      { action: 'api::dataset.dataset.delete', role: adminRole.id },
+      { action: 'api::datapoint.datapoint.find', role: adminRole.id },
+      { action: 'api::datapoint.datapoint.findOne', role: adminRole.id },
+      { action: 'api::datapoint.datapoint.create', role: adminRole.id },
+      { action: 'api::datapoint.datapoint.update', role: adminRole.id },
+      { action: 'api::datapoint.datapoint.delete', role: adminRole.id }
+    ];
+
+    // Supprimer les anciennes permissions et créer les nouvelles pour MEMBER
+    await strapi.query('plugin::users-permissions.permission').deleteMany({
+      where: {
+        role: memberRole.id,
+        action: { $in: memberPermissions.map(p => p.action) }
+      }
+    });
+
+    for (const permission of memberPermissions) {
+      await strapi.query('plugin::users-permissions.permission').create({
+        data: permission
+      });
+    }
+
+    // Supprimer les anciennes permissions et créer les nouvelles pour ADMIN
+    await strapi.query('plugin::users-permissions.permission').deleteMany({
+      where: {
+        role: adminRole.id,
+        action: { $in: adminPermissions.map(p => p.action) }
+      }
+    });
+
+    for (const permission of adminPermissions) {
+      await strapi.query('plugin::users-permissions.permission').create({
+        data: permission
+      });
+    }
+
+    console.log('✅ Permissions configurées pour MEMBER et ADMIN');
+
+    // Créer un utilisateur admin de test s'il n'existe pas
+    const existingAdminUser = await strapi.query('plugin::users-permissions.user').findOne({
+      where: { email: 'admin@test.com' }
+    });
+
+    if (!existingAdminUser) {
+      await strapi.query('plugin::users-permissions.user').create({
+        data: {
+          username: 'admin',
+          email: 'admin@test.com',
+          password: await strapi.plugins['users-permissions'].services.user.hashPassword('admin123'),
+          confirmed: true,
+          role: adminRole.id
+        }
+      });
+      console.log('✅ Utilisateur admin de test créé (admin@test.com / admin123)');
+    }
+
+    // Créer un utilisateur member de test s'il n'existe pas
+    const existingMemberUser = await strapi.query('plugin::users-permissions.user').findOne({
+      where: { email: 'member@test.com' }
+    });
+
+    if (!existingMemberUser) {
+      await strapi.query('plugin::users-permissions.user').create({
+        data: {
+          username: 'member',
+          email: 'member@test.com',
+          password: await strapi.plugins['users-permissions'].services.user.hashPassword('member123'),
+          confirmed: true,
+          role: memberRole.id
+        }
+      });
+      console.log('✅ Utilisateur member de test créé (member@test.com / member123)');
+    }
+
+  } catch (error) {
+    console.error('❌ Erreur lors de la configuration des rôles:', error);
+  }
+}
+
 module.exports = async () => {
   await seedExampleApp();
+  await setupUsersPermissionsRoles();
 };
