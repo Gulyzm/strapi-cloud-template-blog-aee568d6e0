@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "datapoints",
+  "info": {
+    "singularName": "datapoint",
+    "pluralName": "datapoints",
+    "displayName": "Datapoint"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "dataset": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::dataset.dataset",
+      "inversedBy": "datapoints"
+    },
+    "x": {
+      "type": "datetime"
+    },
+    "y": {
+      "type": "decimal"
+    },
+    "extra": {
+      "type": "json"
+    }
+  }
+}
+
+

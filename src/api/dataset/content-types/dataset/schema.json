@@ -1,0 +1,49 @@
+{
+  "kind": "collectionType",
+  "collectionName": "datasets",
+  "info": {
+    "singularName": "dataset",
+    "pluralName": "datasets",
+    "displayName": "Dataset"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "name"
+    },
+    "visibility": {
+      "type": "enumeration",
+      "enum": ["public", "private", "restricted"],
+      "default": "private"
+    },
+    "owner": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "source_file": {
+      "type": "media",
+      "allowedTypes": ["files"],
+      "multiple": false,
+      "required": false
+    },
+    "meta": {
+      "type": "json"
+    },
+    "datapoints": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::datapoint.datapoint",
+      "mappedBy": "dataset"
+    }
+  }
+}
+
+
