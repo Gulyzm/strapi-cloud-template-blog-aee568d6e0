@@ -7,7 +7,9 @@ module.exports = {
       path: '/datasets/import',
       handler: 'dataset.importCsv',
       config: {
-        policies: ['global::is-admin'],
+        auth: {
+          scope: ['authenticated']
+        }
       },
     },
     {
