@@ -312,7 +312,9 @@ async function setupUsersPermissionsRoles() {
       { action: 'api::dataset.dataset.find', role: memberRole.id },
       { action: 'api::dataset.dataset.findOne', role: memberRole.id },
       { action: 'api::datapoint.datapoint.find', role: memberRole.id },
-      { action: 'api::datapoint.datapoint.findOne', role: memberRole.id }
+      { action: 'api::datapoint.datapoint.findOne', role: memberRole.id },
+      { action: 'api::document.document.find', role: memberRole.id },
+      { action: 'api::document.document.findOne', role: memberRole.id }
     ];
 
     // Définir les permissions pour ADMIN (tout + import)
@@ -326,7 +328,12 @@ async function setupUsersPermissionsRoles() {
       { action: 'api::datapoint.datapoint.findOne', role: adminRole.id },
       { action: 'api::datapoint.datapoint.create', role: adminRole.id },
       { action: 'api::datapoint.datapoint.update', role: adminRole.id },
-      { action: 'api::datapoint.datapoint.delete', role: adminRole.id }
+      { action: 'api::datapoint.datapoint.delete', role: adminRole.id },
+      { action: 'api::document.document.find', role: adminRole.id },
+      { action: 'api::document.document.findOne', role: adminRole.id },
+      { action: 'api::document.document.create', role: adminRole.id },
+      { action: 'api::document.document.update', role: adminRole.id },
+      { action: 'api::document.document.delete', role: adminRole.id }
     ];
 
     // Supprimer les anciennes permissions et créer les nouvelles pour MEMBER

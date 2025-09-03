@@ -1,0 +1,54 @@
+{
+  "kind": "collectionType",
+  "collectionName": "documents",
+  "info": {
+    "singularName": "document",
+    "pluralName": "documents",
+    "displayName": "Document"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title"
+    },
+    "description": {
+      "type": "text"
+    },
+    "file": {
+      "type": "media",
+      "allowedTypes": ["files"],
+      "multiple": false,
+      "required": true
+    },
+    "fileType": {
+      "type": "enumeration",
+      "enum": ["pdf", "doc", "docx", "txt", "other"],
+      "default": "pdf"
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": ["rapport", "contrat", "facture", "presentation", "autre"],
+      "default": "autre"
+    },
+    "uploadedBy": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "tags": {
+      "type": "json"
+    },
+    "visibility": {
+      "type": "enumeration",
+      "enum": ["public", "private", "restricted"],
+      "default": "private"
+    }
+  }
+}
