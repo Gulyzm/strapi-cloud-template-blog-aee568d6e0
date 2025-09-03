@@ -277,98 +277,63 @@ async function setupUsersPermissionsRoles() {
   console.log('Setting up Users & Permissions roles...');
   
   try {
-    // Vérifier si les rôles existent déjà
-    const existingMember = await strapi.query('plugin::users-permissions.role').findOne({
-      where: { name: 'MEMBER' }
+    // Utiliser les rôles par défaut de Strapi au lieu de créer de nouveaux rôles
+    const authenticatedRole = await strapi.query('plugin::users-permissions.role').findOne({
+      where: { type: 'authenticated' }
     });
-    const existingAdmin = await strapi.query('plugin::users-permissions.role').findOne({
-      where: { name: 'ADMIN' }
+    
+    const publicRole = await strapi.query('plugin::users-permissions.role').findOne({
+      where: { type: 'public' }
     });
 
-    // Créer le rôle MEMBER s'il n'existe pas
-    let memberRole = existingMember;
-    if (!memberRole) {
-      memberRole = await strapi.query('plugin::users-permissions.role').create({
-        data: {
-          name: 'MEMBER',
-          description: 'Membre avec accès en lecture aux datasets et datapoints',
-          type: 'member'
-        }
-      });
-      console.log('✅ Rôle MEMBER créé');
+    if (!authenticatedRole) {
+      console.log('❌ Rôle Authenticated non trouvé');
+      return;
     }
 
-    // Créer le rôle ADMIN s'il n'existe pas
-    let adminRole = existingAdmin;
-    if (!adminRole) {
-      adminRole = await strapi.query('plugin::users-permissions.role').create({
-        data: {
-          name: 'ADMIN',
-          description: 'Administrateur avec accès complet et import CSV',
-          type: 'admin'
-        }
-      });
-      console.log('✅ Rôle ADMIN créé');
-    }
+    // Utiliser le rôle Authenticated pour tous les utilisateurs
+    const memberRole = authenticatedRole;
+    const adminRole = authenticatedRole;
 
-    // Définir les permissions pour MEMBER
-    const memberPermissions = [
-      { action: 'api::dataset.dataset.find', role: memberRole.id },
-      { action: 'api::dataset.dataset.findOne', role: memberRole.id },
-      { action: 'api::datapoint.datapoint.find', role: memberRole.id },
-      { action: 'api::datapoint.datapoint.findOne', role: memberRole.id },
-      { action: 'api::document.document.find', role: memberRole.id },
-      { action: 'api::document.document.findOne', role: memberRole.id }
+    // Configurer les permissions pour le rôle Authenticated (utilisé par tous)
+    const authenticatedPermissions = [
+      { action: 'api::dataset.dataset.find', role: authenticatedRole.id },
+      { action: 'api::dataset.dataset.findOne', role: authenticatedRole.id },
+      { action: 'api::dataset.dataset.create', role: authenticatedRole.id },
+      { action: 'api::dataset.dataset.update', role: authenticatedRole.id },
+      { action: 'api::dataset.dataset.delete', role: authenticatedRole.id },
+      { action: 'api::datapoint.datapoint.find', role: authenticatedRole.id },
+      { action: 'api::datapoint.datapoint.findOne', role: authenticatedRole.id },
+      { action: 'api::datapoint.datapoint.create', role: authenticatedRole.id },
+      { action: 'api::datapoint.datapoint.update', role: authenticatedRole.id },
+      { action: 'api::datapoint.datapoint.delete', role: authenticatedRole.id },
+      { action: 'api::document.document.find', role: authenticatedRole.id },
+      { action: 'api::document.document.findOne', role: authenticatedRole.id },
+      { action: 'api::document.document.create', role: authenticatedRole.id },
+      { action: 'api::document.document.update', role: authenticatedRole.id },
+      { action: 'api::document.document.delete', role: authenticatedRole.id }
     ];
 
-    // Définir les permissions pour ADMIN (tout + import)
-    const adminPermissions = [
-      { action: 'api::dataset.dataset.find', role: adminRole.id },
-      { action: 'api::dataset.dataset.findOne', role: adminRole.id },
-      { action: 'api::dataset.dataset.create', role: adminRole.id },
-      { action: 'api::dataset.dataset.update', role: adminRole.id },
-      { action: 'api::dataset.dataset.delete', role: adminRole.id },
-      { action: 'api::datapoint.datapoint.find', role: adminRole.id },
-      { action: 'api::datapoint.datapoint.findOne', role: adminRole.id },
-      { action: 'api::datapoint.datapoint.create', role: adminRole.id },
-      { action: 'api::datapoint.datapoint.update', role: adminRole.id },
-      { action: 'api::datapoint.datapoint.delete', role: adminRole.id },
-      { action: 'api::document.document.find', role: adminRole.id },
-      { action: 'api::document.document.findOne', role: adminRole.id },
-      { action: 'api::document.document.create', role: adminRole.id },
-      { action: 'api::document.document.update', role: adminRole.id },
-      { action: 'api::document.document.delete', role: adminRole.id }
-    ];
-
-    // Supprimer les anciennes permissions et créer les nouvelles pour MEMBER
+    // Supprimer les anciennes permissions et créer les nouvelles
     await strapi.query('plugin::users-permissions.permission').deleteMany({
       where: {
-        role: memberRole.id,
-        action: { $in: memberPermissions.map(p => p.action) }
+        role: authenticatedRole.id,
+        action: { $in: authenticatedPermissions.map(p => p.action) }
       }
     });
 
-    for (const permission of memberPermissions) {
-      await strapi.query('plugin::users-permissions.permission').create({
-        data: permission
-      });
-    }
-
-    // Supprimer les anciennes permissions et créer les nouvelles pour ADMIN
-    await strapi.query('plugin::users-permissions.permission').deleteMany({
-      where: {
-        role: adminRole.id,
-        action: { $in: adminPermissions.map(p => p.action) }
+    for (const permission of authenticatedPermissions) {
+      try {
+        await strapi.query('plugin::users-permissions.permission').create({
+          data: permission
+        });
+      } catch (error) {
+        // Ignorer les erreurs de permissions déjà existantes
+        console.log(`Permission ${permission.action} déjà existante`);
       }
-    });
-
-    for (const permission of adminPermissions) {
-      await strapi.query('plugin::users-permissions.permission').create({
-        data: permission
-      });
     }
 
-    console.log('✅ Permissions configurées pour MEMBER et ADMIN');
+    console.log('✅ Permissions configurées pour le rôle Authenticated');
 
     // Créer un utilisateur admin de test s'il n'existe pas
     const existingAdminUser = await strapi.query('plugin::users-permissions.user').findOne({
@@ -385,7 +350,7 @@ async function setupUsersPermissionsRoles() {
           email: 'admin@test.com',
           password: hashedPassword,
           confirmed: true,
-          role: adminRole.id
+          role: authenticatedRole.id
         }
       });
       console.log('✅ Utilisateur admin de test créé (admin@test.com / admin123)');
@@ -406,7 +371,7 @@ async function setupUsersPermissionsRoles() {
           email: 'member@test.com',
           password: hashedPassword,
           confirmed: true,
-          role: memberRole.id
+          role: authenticatedRole.id
         }
       });
       console.log('✅ Utilisateur member de test créé (member@test.com / member123)');

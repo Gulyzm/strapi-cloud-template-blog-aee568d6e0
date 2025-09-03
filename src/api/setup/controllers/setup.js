@@ -21,22 +21,14 @@ module.exports = createCoreController('api::setup.setup', ({ strapi }) => ({
         });
       }
 
-      // Récupérer ou créer les rôles
-      let adminRole = await strapi.query('plugin::users-permissions.role').findOne({
-        where: { name: 'ADMIN' }
-      });
-      
-      let memberRole = await strapi.query('plugin::users-permissions.role').findOne({
-        where: { name: 'MEMBER' }
-      });
-
-      // Si les rôles n'existent pas, utiliser Authenticated par défaut
+      // Utiliser le rôle Authenticated par défaut
       const authenticatedRole = await strapi.query('plugin::users-permissions.role').findOne({
         where: { type: 'authenticated' }
       });
 
-      if (!adminRole) adminRole = authenticatedRole;
-      if (!memberRole) memberRole = authenticatedRole;
+      if (!authenticatedRole) {
+        return ctx.badRequest('Rôle Authenticated non trouvé');
+      }
 
       const bcrypt = require('bcryptjs');
       const results = [];
@@ -50,7 +42,7 @@ module.exports = createCoreController('api::setup.setup', ({ strapi }) => ({
             email: 'admin@test.com',
             password: hashedPassword,
             confirmed: true,
-            role: adminRole.id
+            role: authenticatedRole.id
           }
         });
         results.push('admin@test.com créé');
@@ -65,7 +57,7 @@ module.exports = createCoreController('api::setup.setup', ({ strapi }) => ({
             email: 'member@test.com',
             password: hashedPassword,
             confirmed: true,
-            role: memberRole.id
+            role: authenticatedRole.id
           }
         });
         results.push('member@test.com créé');
