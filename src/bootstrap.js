@@ -31,8 +31,12 @@ async function isFirstRun() {
     name: 'setup',
   });
   const initHasRun = await pluginStore.get({ key: 'initHasRun' });
+  
+  // Force la création des utilisateurs en production
+  const forceUserCreation = process.env.NODE_ENV === 'production' && !initHasRun;
+  
   await pluginStore.set({ key: 'initHasRun', value: true });
-  return !initHasRun;
+  return !initHasRun || forceUserCreation;
 }
 
 async function setPublicPermissions(newPermissions) {
