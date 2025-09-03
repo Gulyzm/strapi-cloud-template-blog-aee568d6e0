@@ -34,13 +34,9 @@ async function setupUsersPermissionsRoles() {
   console.log('Setting up Users & Permissions roles...');
   
   try {
-    // Utiliser les rôles par défaut de Strapi au lieu de créer de nouveaux rôles
+    // Récupérer le rôle Authenticated par défaut
     const authenticatedRole = await strapi.query('plugin::users-permissions.role').findOne({
       where: { type: 'authenticated' }
-    });
-    
-    const publicRole = await strapi.query('plugin::users-permissions.role').findOne({
-      where: { type: 'public' }
     });
 
     if (!authenticatedRole) {
@@ -48,22 +44,28 @@ async function setupUsersPermissionsRoles() {
       return;
     }
 
-    // Utiliser le rôle Authenticated pour tous les utilisateurs
-    const memberRole = authenticatedRole;
-    const adminRole = authenticatedRole;
+    // Créer ou récupérer le rôle Admin personnalisé
+    let adminRole = await strapi.query('plugin::users-permissions.role').findOne({
+      where: { name: 'Admin' }
+    });
 
-    // Configurer les permissions pour le rôle Authenticated (utilisé par tous)
+    if (!adminRole) {
+      adminRole = await strapi.query('plugin::users-permissions.role').create({
+        data: {
+          name: 'Admin',
+          description: 'Administrateurs avec accès complet et import CSV',
+          type: 'admin'
+        }
+      });
+      console.log('✅ Rôle Admin créé');
+    }
+
+    // Permissions pour Authenticated (utilisateurs normaux - lecture + upload PDF)
     const authenticatedPermissions = [
       { action: 'api::dataset.dataset.find', role: authenticatedRole.id },
       { action: 'api::dataset.dataset.findOne', role: authenticatedRole.id },
-      { action: 'api::dataset.dataset.create', role: authenticatedRole.id },
-      { action: 'api::dataset.dataset.update', role: authenticatedRole.id },
-      { action: 'api::dataset.dataset.delete', role: authenticatedRole.id },
       { action: 'api::datapoint.datapoint.find', role: authenticatedRole.id },
       { action: 'api::datapoint.datapoint.findOne', role: authenticatedRole.id },
-      { action: 'api::datapoint.datapoint.create', role: authenticatedRole.id },
-      { action: 'api::datapoint.datapoint.update', role: authenticatedRole.id },
-      { action: 'api::datapoint.datapoint.delete', role: authenticatedRole.id },
       { action: 'api::document.document.find', role: authenticatedRole.id },
       { action: 'api::document.document.findOne', role: authenticatedRole.id },
       { action: 'api::document.document.create', role: authenticatedRole.id },
@@ -71,7 +73,26 @@ async function setupUsersPermissionsRoles() {
       { action: 'api::document.document.delete', role: authenticatedRole.id }
     ];
 
-    // Supprimer les anciennes permissions et créer les nouvelles
+    // Permissions pour Admin (accès complet + import CSV)
+    const adminPermissions = [
+      { action: 'api::dataset.dataset.find', role: adminRole.id },
+      { action: 'api::dataset.dataset.findOne', role: adminRole.id },
+      { action: 'api::dataset.dataset.create', role: adminRole.id },
+      { action: 'api::dataset.dataset.update', role: adminRole.id },
+      { action: 'api::dataset.dataset.delete', role: adminRole.id },
+      { action: 'api::datapoint.datapoint.find', role: adminRole.id },
+      { action: 'api::datapoint.datapoint.findOne', role: adminRole.id },
+      { action: 'api::datapoint.datapoint.create', role: adminRole.id },
+      { action: 'api::datapoint.datapoint.update', role: adminRole.id },
+      { action: 'api::datapoint.datapoint.delete', role: adminRole.id },
+      { action: 'api::document.document.find', role: adminRole.id },
+      { action: 'api::document.document.findOne', role: adminRole.id },
+      { action: 'api::document.document.create', role: adminRole.id },
+      { action: 'api::document.document.update', role: adminRole.id },
+      { action: 'api::document.document.delete', role: adminRole.id }
+    ];
+
+    // Configurer permissions pour Authenticated
     await strapi.query('plugin::users-permissions.permission').deleteMany({
       where: {
         role: authenticatedRole.id,
@@ -85,12 +106,29 @@ async function setupUsersPermissionsRoles() {
           data: permission
         });
       } catch (error) {
-        // Ignorer les erreurs de permissions déjà existantes
-        console.log(`Permission ${permission.action} déjà existante`);
+        console.log(`Permission ${permission.action} déjà existante pour Authenticated`);
       }
     }
 
-    console.log('✅ Permissions configurées pour le rôle Authenticated');
+    // Configurer permissions pour Admin
+    await strapi.query('plugin::users-permissions.permission').deleteMany({
+      where: {
+        role: adminRole.id,
+        action: { $in: adminPermissions.map(p => p.action) }
+      }
+    });
+
+    for (const permission of adminPermissions) {
+      try {
+        await strapi.query('plugin::users-permissions.permission').create({
+          data: permission
+        });
+      } catch (error) {
+        console.log(`Permission ${permission.action} déjà existante pour Admin`);
+      }
+    }
+
+    console.log('✅ Permissions configurées pour Authenticated (lecture + PDF) et Admin (tout + CSV)');
     console.log('ℹ️  Créez vos utilisateurs manuellement dans l\'admin Strapi');
 
   } catch (error) {
