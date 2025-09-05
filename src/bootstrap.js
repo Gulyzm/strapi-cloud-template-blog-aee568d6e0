@@ -60,17 +60,14 @@ async function setupUsersPermissionsRoles() {
       console.log('✅ Rôle Admin créé');
     }
 
-    // Permissions pour Authenticated (utilisateurs normaux - lecture + upload PDF)
+    // Permissions pour Authenticated (utilisateurs normaux - lecture seule)
     const authenticatedPermissions = [
       { action: 'api::dataset.dataset.find', role: authenticatedRole.id },
       { action: 'api::dataset.dataset.findOne', role: authenticatedRole.id },
       { action: 'api::datapoint.datapoint.find', role: authenticatedRole.id },
       { action: 'api::datapoint.datapoint.findOne', role: authenticatedRole.id },
       { action: 'api::document.document.find', role: authenticatedRole.id },
-      { action: 'api::document.document.findOne', role: authenticatedRole.id },
-      { action: 'api::document.document.create', role: authenticatedRole.id },
-      { action: 'api::document.document.update', role: authenticatedRole.id },
-      { action: 'api::document.document.delete', role: authenticatedRole.id }
+      { action: 'api::document.document.findOne', role: authenticatedRole.id }
     ];
 
     // Permissions pour Admin (accès complet + import CSV)
@@ -128,7 +125,7 @@ async function setupUsersPermissionsRoles() {
       }
     }
 
-    console.log('✅ Permissions configurées pour Authenticated (lecture + PDF) et Admin (tout + CSV)');
+    console.log('✅ Permissions configurées pour Authenticated (lecture seule) et Admin (tout + uploads)');
     console.log('ℹ️  Créez vos utilisateurs manuellement dans l\'admin Strapi');
 
   } catch (error) {

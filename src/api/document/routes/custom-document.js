@@ -7,9 +7,7 @@ module.exports = {
       path: '/documents/upload',
       handler: 'document.uploadDocument',
       config: {
-        auth: {
-          scope: ['authenticated']
-        }
+        policies: ['global::is-admin'],
       },
     },
     {
