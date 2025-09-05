@@ -66,8 +66,10 @@ async function setupUsersPermissionsRoles() {
       { action: 'api::dataset.dataset.findOne', role: authenticatedRole.id },
       { action: 'api::datapoint.datapoint.find', role: authenticatedRole.id },
       { action: 'api::datapoint.datapoint.findOne', role: authenticatedRole.id },
-      { action: 'api::document.document.find', role: authenticatedRole.id },
-      { action: 'api::document.document.findOne', role: authenticatedRole.id }
+      { action: 'api::priips-kid.priips-kid.find', role: authenticatedRole.id },
+      { action: 'api::priips-kid.priips-kid.findOne', role: authenticatedRole.id },
+      { action: 'api::legal-document.legal-document.find', role: authenticatedRole.id },
+      { action: 'api::legal-document.legal-document.findOne', role: authenticatedRole.id }
     ];
 
     // Permissions pour Admin (accès complet + import CSV)
@@ -82,11 +84,16 @@ async function setupUsersPermissionsRoles() {
       { action: 'api::datapoint.datapoint.create', role: adminRole.id },
       { action: 'api::datapoint.datapoint.update', role: adminRole.id },
       { action: 'api::datapoint.datapoint.delete', role: adminRole.id },
-      { action: 'api::document.document.find', role: adminRole.id },
-      { action: 'api::document.document.findOne', role: adminRole.id },
-      { action: 'api::document.document.create', role: adminRole.id },
-      { action: 'api::document.document.update', role: adminRole.id },
-      { action: 'api::document.document.delete', role: adminRole.id }
+      { action: 'api::priips-kid.priips-kid.find', role: adminRole.id },
+      { action: 'api::priips-kid.priips-kid.findOne', role: adminRole.id },
+      { action: 'api::priips-kid.priips-kid.create', role: adminRole.id },
+      { action: 'api::priips-kid.priips-kid.update', role: adminRole.id },
+      { action: 'api::priips-kid.priips-kid.delete', role: adminRole.id },
+      { action: 'api::legal-document.legal-document.find', role: adminRole.id },
+      { action: 'api::legal-document.legal-document.findOne', role: adminRole.id },
+      { action: 'api::legal-document.legal-document.create', role: adminRole.id },
+      { action: 'api::legal-document.legal-document.update', role: adminRole.id },
+      { action: 'api::legal-document.legal-document.delete', role: adminRole.id }
     ];
 
     // Configurer permissions pour Authenticated

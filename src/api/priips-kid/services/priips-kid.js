@@ -1,9 +1,9 @@
 'use strict';
 
 /**
- * document service.
+ * priips-kid service.
  */
 
 const { createCoreService } = require('@strapi/strapi').factories;
 
-module.exports = createCoreService('api::document.document');
+module.exports = createCoreService('api::priips-kid.priips-kid');

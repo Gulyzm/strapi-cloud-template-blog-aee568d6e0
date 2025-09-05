@@ -447,54 +447,6 @@ export interface ApiDatasetDataset extends Struct.CollectionTypeSchema {
   };
 }
 
-export interface ApiDocumentDocument extends Struct.CollectionTypeSchema {
-  collectionName: 'documents';
-  info: {
-    displayName: 'Document';
-    pluralName: 'documents';
-    singularName: 'document';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    category: Schema.Attribute.Enumeration<
-      ['rapport', 'contrat', 'facture', 'presentation', 'autre']
-    > &
-      Schema.Attribute.DefaultTo<'autre'>;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    description: Schema.Attribute.Text;
-    file: Schema.Attribute.Media<'files'> & Schema.Attribute.Required;
-    fileType: Schema.Attribute.Enumeration<
-      ['pdf', 'doc', 'docx', 'txt', 'other']
-    > &
-      Schema.Attribute.DefaultTo<'pdf'>;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::document.document'
-    > &
-      Schema.Attribute.Private;
-    publishedAt: Schema.Attribute.DateTime;
-    slug: Schema.Attribute.UID<'title'>;
-    tags: Schema.Attribute.JSON;
-    title: Schema.Attribute.String & Schema.Attribute.Required;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    uploadedBy: Schema.Attribute.Relation<
-      'manyToOne',
-      'plugin::users-permissions.user'
-    >;
-    visibility: Schema.Attribute.Enumeration<
-      ['public', 'private', 'restricted']
-    > &
-      Schema.Attribute.DefaultTo<'private'>;
-  };
-}
-
 export interface PluginContentReleasesRelease
   extends Struct.CollectionTypeSchema {
   collectionName: 'strapi_releases';
@@ -1006,7 +958,6 @@ declare module '@strapi/strapi' {
       'admin::user': AdminUser;
       'api::datapoint.datapoint': ApiDatapointDatapoint;
       'api::dataset.dataset': ApiDatasetDataset;
-      'api::document.document': ApiDocumentDocument;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

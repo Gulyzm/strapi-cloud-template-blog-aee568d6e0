@@ -1,0 +1,70 @@
+{
+  "kind": "collectionType",
+  "collectionName": "priips_kids",
+  "info": {
+    "singularName": "priips-kid",
+    "pluralName": "priips-kids",
+    "displayName": "PRIIPS KID"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title"
+    },
+    "description": {
+      "type": "text"
+    },
+    "document": {
+      "type": "media",
+      "allowedTypes": ["files"],
+      "multiple": false,
+      "required": true
+    },
+    "isin": {
+      "type": "string",
+      "required": false
+    },
+    "productName": {
+      "type": "string",
+      "required": false
+    },
+    "riskLevel": {
+      "type": "enumeration",
+      "enum": ["1", "2", "3", "4", "5", "6", "7"],
+      "required": false
+    },
+    "validFrom": {
+      "type": "date",
+      "required": false
+    },
+    "validTo": {
+      "type": "date",
+      "required": false
+    },
+    "language": {
+      "type": "enumeration",
+      "enum": ["fr", "en", "de", "pl", "es"],
+      "default": "fr"
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": ["fund", "etf", "structured", "insurance", "other"],
+      "default": "fund"
+    },
+    "tags": {
+      "type": "json"
+    },
+    "uploadedBy": {
+      "type": "relation",
+      "relation": "manyToOne", 
+      "target": "plugin::users-permissions.user"
+    }
+  }
+}
