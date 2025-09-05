@@ -37,7 +37,7 @@
     },
     "riskLevel": {
       "type": "enumeration",
-      "enum": ["1", "2", "3", "4", "5", "6", "7"],
+      "enum": ["level1", "level2", "level3", "level4", "level5", "level6", "level7"],
       "required": false
     },
     "validFrom": {
