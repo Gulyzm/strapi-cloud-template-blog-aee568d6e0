@@ -447,6 +447,106 @@ export interface ApiDatasetDataset extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiLegalDocumentLegalDocument
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'legal_documents';
+  info: {
+    displayName: 'Legal Document';
+    pluralName: 'legal-documents';
+    singularName: 'legal-document';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    description: Schema.Attribute.Text;
+    document: Schema.Attribute.Media<'files'> & Schema.Attribute.Required;
+    documentType: Schema.Attribute.Enumeration<
+      ['contract', 'terms', 'privacy', 'prospectus', 'regulation', 'other']
+    > &
+      Schema.Attribute.DefaultTo<'other'>;
+    isActive: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    jurisdiction: Schema.Attribute.Enumeration<
+      ['france', 'europe', 'usa', 'poland', 'international']
+    > &
+      Schema.Attribute.DefaultTo<'france'>;
+    language: Schema.Attribute.Enumeration<['fr', 'en', 'de', 'pl', 'es']> &
+      Schema.Attribute.DefaultTo<'fr'>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::legal-document.legal-document'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    slug: Schema.Attribute.UID<'title'>;
+    tags: Schema.Attribute.JSON;
+    title: Schema.Attribute.String & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    uploadedBy: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    validFrom: Schema.Attribute.Date;
+    validTo: Schema.Attribute.Date;
+    version: Schema.Attribute.String;
+  };
+}
+
+export interface ApiPriipsKidPriipsKid extends Struct.CollectionTypeSchema {
+  collectionName: 'priips_kids';
+  info: {
+    displayName: 'PRIIPS KID';
+    pluralName: 'priips-kids';
+    singularName: 'priips-kid';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    category: Schema.Attribute.Enumeration<
+      ['fund', 'etf', 'structured', 'insurance', 'other']
+    > &
+      Schema.Attribute.DefaultTo<'fund'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    description: Schema.Attribute.Text;
+    document: Schema.Attribute.Media<'files'> & Schema.Attribute.Required;
+    isin: Schema.Attribute.String;
+    language: Schema.Attribute.Enumeration<['fr', 'en', 'de', 'pl', 'es']> &
+      Schema.Attribute.DefaultTo<'fr'>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::priips-kid.priips-kid'
+    > &
+      Schema.Attribute.Private;
+    productName: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    riskLevel: Schema.Attribute.Enumeration<
+      ['level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'level7']
+    >;
+    slug: Schema.Attribute.UID<'title'>;
+    tags: Schema.Attribute.JSON;
+    title: Schema.Attribute.String & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    uploadedBy: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    validFrom: Schema.Attribute.Date;
+    validTo: Schema.Attribute.Date;
+  };
+}
+
 export interface PluginContentReleasesRelease
   extends Struct.CollectionTypeSchema {
   collectionName: 'strapi_releases';
@@ -958,6 +1058,8 @@ declare module '@strapi/strapi' {
       'admin::user': AdminUser;
       'api::datapoint.datapoint': ApiDatapointDatapoint;
       'api::dataset.dataset': ApiDatasetDataset;
+      'api::legal-document.legal-document': ApiLegalDocumentLegalDocument;
+      'api::priips-kid.priips-kid': ApiPriipsKidPriipsKid;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

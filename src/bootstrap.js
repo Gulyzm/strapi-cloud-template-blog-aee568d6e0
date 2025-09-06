@@ -44,20 +44,20 @@ async function setupUsersPermissionsRoles() {
       return;
     }
 
-    // Créer ou récupérer le rôle Admin personnalisé
+    // Créer ou récupérer le rôle admin personnalisé
     let adminRole = await strapi.query('plugin::users-permissions.role').findOne({
-      where: { name: 'Admin' }
+      where: { name: 'admin' }
     });
 
     if (!adminRole) {
       adminRole = await strapi.query('plugin::users-permissions.role').create({
         data: {
-          name: 'Admin',
+          name: 'admin',
           description: 'Administrateurs avec accès complet et import CSV',
           type: 'admin'
         }
       });
-      console.log('✅ Rôle Admin créé');
+      console.log('✅ Rôle admin créé');
     }
 
     // Permissions pour Authenticated (utilisateurs normaux - lecture seule)
